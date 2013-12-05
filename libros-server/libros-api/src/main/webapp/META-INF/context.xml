@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Resource name="jdbc/librosdb" auth="Container" type="javax.sql.DataSource"
+		maxActive="10" maxIdle="5" username="libros" password="libros"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost:3306/librosdb?autoReconnect=true" />
+
+	<Resource name="jdbc/realmdb" auth="Container" type="javax.sql.DataSource"
+		maxActive="10" maxIdle="5" username="realm" password="realm"
+		driverClassName="com.mysql.jdbc.Driver"
+		url="jdbc:mysql://localhost:3306/realmdb?autoReconnect=true" />
+
+	<Realm className="org.apache.catalina.realm.DataSourceRealm"
+		dataSourceName="jdbc/realmdb" localDataSource="true" digest="MD5"
+		userTable="users" userNameCol="username" userCredCol="userpass"
+		userRoleTable="user_roles" roleNameCol="rolename" />
+</Context>
