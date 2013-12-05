@@ -12,6 +12,7 @@ public class Libro {
 	private java.util.Date fecha_edicion;
 	private java.util.Date fecha_impresion;
 	private String editorial;
+	private java.util.Date lastUpdate;
 
 	private ArrayList<Link> links;
 
@@ -95,6 +96,14 @@ public class Libro {
 	public void addLink(Link link) {
 		links.add(link);
 		return;
+	}
+
+	public java.util.Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(java.util.Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
 	}
 
 }

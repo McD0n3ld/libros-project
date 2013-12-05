@@ -23,12 +23,12 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import eetac.upc.edu.dsa.raul.libros.api.links.BeeterAPILinkBuilder;
-import eetac.upc.edu.dsa.raul.libros.api.model.Sting;
-import eetac.upc.edu.dsa.raul.libros.api.model.StingCollection;
+import eetac.upc.edu.dsa.raul.libros.api.links.LibrosAPILinkBuilder;
+import eetac.upc.edu.dsa.raul.libros.api.model.Libro;
+import eetac.upc.edu.dsa.raul.libros.api.model.LibroCollection;
 
-@Path("/stings")
-public class StingResource {
+@Path("/libros")
+public class LibroResource {
 
 	@Context
 	private UriInfo uriInfo;
@@ -37,10 +37,80 @@ public class StingResource {
 	private SecurityContext security;
 
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-	StingCollection stings = new StingCollection();
+	LibroCollection libros = new LibroCollection();
 
+	
 	@GET
-	@Produces(MediaType.BEETER_API_STING_COLLECTION)
+	@Path("/{libroid}")
+	@Produces(MediaType.LIBROS_API_LIBRO)
+	public Response getLibro(@PathParam("libroid") String libroid, @Context Request req) {
+		// Create CacheControl
+		CacheControl cc = new CacheControl();
+		
+		Libro libro = new Libro();
+		
+		Connection con = null;
+		Statement stmt = null;
+		try {
+			con = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServiceUnavailableException(e.getMessage());
+		}
+		
+		try {
+			stmt = con.createStatement();
+			String query = "SELECT * FROM libros WHERE libroid=" + libroid + ";";
+			ResultSet rs = stmt.executeQuery(query);
+			if (rs.next()) {
+				libro.setLibroid(rs.getInt("libroid"));
+				libro.setTitulo(rs.getString("titulo"));
+				libro.setAutor(rs.getString("autor"));
+				libro.setLengua(rs.getString("lengua"));
+				libro.setEdicion(rs.getString("edicion"));
+				libro.setFecha_edicion(rs.getDate("fecha_edicion"));
+				libro.setFecha_impresion(rs.getDate("fecha_impresion"));
+				libro.setEditorial(rs.getString("editorial"));
+				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
+				
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid() - 1, "prev"));
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid() + 1, "next"));
+			} else
+				throw new LibroNotFoundException();
+		} catch (SQLException e) {
+			throw new InternalServerException(e.getMessage());
+		} finally {
+			try {
+				con.close();
+				stmt.close();
+			} catch (Exception e) {
+			}
+		}
+
+		// Calculate the ETag on last modified date of user resource
+		EntityTag eTag = new EntityTag(Integer.toString(libro.getLastUpdate().hashCode()));
+
+		// Verify if it matched with etag available in http request
+		Response.ResponseBuilder rb = req.evaluatePreconditions(eTag);
+
+		// If ETag matches the rb will be non-null;
+		// Use the rb to return the response without any further processing
+		if (rb != null) {
+			return rb.cacheControl(cc).tag(eTag).build();
+		}
+
+		// If rb is null then either it is first time request; or resource is
+		// modified
+		// Get the updated representation and return with Etag attached to it
+		rb = Response.ok(libro).cacheControl(cc).tag(eTag);
+
+		return rb.build();
+	}
+	
+	
+	/*
+	@GET
+	@Produces(MediaType.LIBROS_API_LIBRO_COLLECTION)
 	public StingCollection getStings(@QueryParam("username") String username, @QueryParam("offset") String offset, @QueryParam("length") String length) {
 		if ((offset == null) || (length == null))
 			throw new BadRequestException("offset and length are mandatory parameters");
@@ -109,8 +179,8 @@ public class StingResource {
 	}
 
 	@POST
-	@Consumes(MediaType.BEETER_API_STING)
-	@Produces(MediaType.BEETER_API_STING)
+	@Consumes(MediaType.LIBROS_API_LIBRO)
+	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Sting createSting(Sting sting) {
 		// TODO: get connection from database
 		if (sting.getSubject().length() > 100)
@@ -145,7 +215,7 @@ public class StingResource {
 				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
 				stings.add(sting);
 			} else
-				throw new StingNotFoundException();
+				throw new LibroNotFoundException();
 		} catch (SQLException e) {
 			throw new InternalServerException(e.getMessage());
 		} finally {
@@ -158,65 +228,7 @@ public class StingResource {
 		return sting;
 	}
 
-	@GET
-	@Path("/{stingid}")
-	@Produces(MediaType.BEETER_API_STING)
-	public Response getSting(@PathParam("stingid") String stingid, @Context Request req) {
-		// Create CacheControl
-		CacheControl cc = new CacheControl();
-		Sting sting = new Sting();
-		Connection con = null;
-		Statement stmt = null;
-		try {
-			con = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServiceUnavailableException(e.getMessage());
-		}
-		try {
-			stmt = con.createStatement();
-			String query = "SELECT * FROM stings WHERE stingid=" + stingid + ";";
-			ResultSet rs = stmt.executeQuery(query);
-			if (rs.next()) {
-				sting.setAuthor(rs.getString("username"));
-				sting.setContent(rs.getString("content"));
-				sting.setCreationTimestamp(rs.getTimestamp("creation_timestamp"));
-				sting.setStingId(stingid);
-				sting.setSubject(rs.getString("subject"));
-				sting.setUsername(rs.getString("username"));
-				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, Integer.toString(Integer.parseInt(sting.getStingId()) - 1), "prev"));
-				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, sting.getStingId(), "self"));
-				sting.addLink(BeeterAPILinkBuilder.buildURIStingId(uriInfo, Integer.toString(Integer.parseInt(sting.getStingId()) + 1), "next"));
-			} else
-				throw new StingNotFoundException();
-		} catch (SQLException e) {
-			throw new InternalServerException(e.getMessage());
-		} finally {
-			try {
-				con.close();
-				stmt.close();
-			} catch (Exception e) {
-			}
-		}
-
-		// Calculate the ETag on last modified date of user resource
-		EntityTag eTag = new EntityTag(Integer.toString(sting.getCreationTimestamp().hashCode()));
-
-		// Verify if it matched with etag available in http request
-		Response.ResponseBuilder rb = req.evaluatePreconditions(eTag);
-
-		// If ETag matches the rb will be non-null;
-		// Use the rb to return the response without any further processing
-		if (rb != null) {
-			return rb.cacheControl(cc).tag(eTag).build();
-		}
-
-		// If rb is null then either it is first time request; or resource is
-		// modified
-		// Get the updated representation and return with Etag attached to it
-		rb = Response.ok(sting).cacheControl(cc).tag(eTag);
-
-		return rb.build();
-	}
+	
 
 	@DELETE
 	@Path("/{stingid}")
@@ -234,7 +246,7 @@ public class StingResource {
 			String query = "DELETE FROM stings WHERE stingid=" + stingid + ";";
 			int rows = stmt.executeUpdate(query);
 			if (rows == 0)
-				throw new StingNotFoundException();
+				throw new LibroNotFoundException();
 		} catch (SQLException e) {
 			throw new InternalServerException(e.getMessage());
 		} finally {
@@ -248,8 +260,8 @@ public class StingResource {
 
 	@PUT
 	@Path("/{stingid}")
-	@Consumes(MediaType.BEETER_API_STING)
-	@Produces(MediaType.BEETER_API_STING)
+	@Consumes(MediaType.LIBROS_API_LIBRO)
+	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Sting updateSting(@PathParam("stingid") String stingid, Sting sting) {
 
 		if (sting.getSubject().length() > 100)
@@ -260,7 +272,7 @@ public class StingResource {
 			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
 				throw new ForbiddenException("You are not allowed...");
 			}
-		} /* else { } //admin */
+		} // else { } //admin 
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -276,6 +288,7 @@ public class StingResource {
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
 				throw new StingNotFoundException();*/
+	/*
 			String query = "SELECT * FROM stings WHERE stingid=" + stingid + ";";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
@@ -301,7 +314,7 @@ public class StingResource {
 
 	@GET
 	@Path("/search")
-	@Produces(MediaType.BEETER_API_STING_COLLECTION)
+	@Produces(MediaType.LIBROS_API_LIBRO_COLLECTION)
 	public StingCollection getSearch(@QueryParam("pattern") String pattern, @QueryParam("offset") String offset, @QueryParam("length") String length,
 			@Context Request req) {
 		if ((offset == null) || (length == null))
@@ -360,5 +373,6 @@ public class StingResource {
 		}
 		return stings;
 	}
+	*/
 
 }

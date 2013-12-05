@@ -17,7 +17,8 @@ create table libros (
 	edicion				varchar(100) not null,
 	fecha_edicion		DATE not null,
 	fecha_impresion		DATE not null,
-	editorial			varchar(100) not null
+	editorial			varchar(100) not null,
+	lastUpdate			timestamp
 );
 
 create table resenas (

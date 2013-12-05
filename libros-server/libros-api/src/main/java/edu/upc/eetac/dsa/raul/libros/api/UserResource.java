@@ -37,8 +37,8 @@ public class UserResource {
 	UserCollection users = new UserCollection();
 	
 	@POST
-	@Consumes(MediaType.BEETER_API_USER)
-	@Produces(MediaType.BEETER_API_USER)
+	@Consumes(MediaType.LIBROS_API_USER)
+	@Produces(MediaType.LIBROS_API_USER)
 	public User createUser(User user) {
 		Connection con = null;
 		Statement stmt = null;
@@ -67,7 +67,7 @@ public class UserResource {
 
 	@GET
 	@Path("/{username}")
-	@Produces(MediaType.BEETER_API_USER)
+	@Produces(MediaType.LIBROS_API_USER)
 	public User getUser(@PathParam("username") String username, @Context Request req) {
 		User user = new User();
 
@@ -104,8 +104,8 @@ public class UserResource {
 
 	@PUT
 	@Path("/{username}")
-	@Consumes(MediaType.BEETER_API_USER)
-	@Produces(MediaType.BEETER_API_USER)
+	@Consumes(MediaType.LIBROS_API_USER)
+	@Produces(MediaType.LIBROS_API_USER)
 	public User updateUser(@PathParam("username") String username, User user) {
 
 		if (!user.getEmail().contains("@") || !user.getEmail().contains("."))
@@ -180,7 +180,7 @@ public class UserResource {
 	
 	@GET
 	@Path("/search")
-	@Produces(MediaType.BEETER_API_USER_COLLECTION)
+	@Produces(MediaType.LIBROS_API_USER_COLLECTION)
 	public UserCollection getSearch(@QueryParam("pattern") String pattern, @QueryParam("offset") String offset, @QueryParam("length") String length, @Context Request req) {
 		if ((offset == null) || (length == null))
 			throw new BadRequestException("offset and length are mandatory parameters");
