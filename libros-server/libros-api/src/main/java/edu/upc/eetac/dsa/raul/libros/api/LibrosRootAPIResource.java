@@ -22,7 +22,7 @@ public class LibrosRootAPIResource {
 		bra.addLink(LibrosAPILinkBuilder.buildURIRootAPI(uriInfo));
 		bra.addLink(LibrosAPILinkBuilder.buildTemplatedURIStings(uriInfo,"libros",true)); //rel = que es este enlace
 		bra.addLink(LibrosAPILinkBuilder.buildTemplatedURIStings(uriInfo,"libros",false)); //rel = que es este enlace
-		bra.addLink(LibrosAPILinkBuilder.buildURIStings(uriInfo, "0", "5", "manolo", "sting"));
+		//bra.addLink(LibrosAPILinkBuilder.buildURIStings(uriInfo, "0", "5", "manolo", "sting"));
 		return bra;		
 	}
 }

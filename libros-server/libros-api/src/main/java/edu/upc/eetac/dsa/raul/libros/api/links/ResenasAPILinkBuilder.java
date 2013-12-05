@@ -7,11 +7,13 @@ import javax.ws.rs.core.UriInfo;
 import edu.upc.eetac.dsa.raul.libros.api.LibrosRootAPIResource;
 import edu.upc.eetac.dsa.raul.libros.api.MediaType;
 import edu.upc.eetac.dsa.raul.libros.api.LibroResource;
+import edu.upc.eetac.dsa.raul.libros.api.ResenaResource;
 import edu.upc.eetac.dsa.raul.libros.api.model.Libro;
+import edu.upc.eetac.dsa.raul.libros.api.model.Resena;
 
 
-public class LibrosAPILinkBuilder {
-	public final static Link buildURIRootAPI(UriInfo uriInfo) { //getBase -> http:blablabla/beeter-api/
+public class ResenasAPILinkBuilder {
+	/*public final static Link buildURIRootAPI(UriInfo uriInfo) { //getBase -> http:blablabla/beeter-api/
 		URI uriRoot = uriInfo.getBaseUriBuilder().path(LibrosRootAPIResource.class).build();
 		Link link = new Link();
 		link.setUri(uriRoot.toString());
@@ -20,13 +22,13 @@ public class LibrosAPILinkBuilder {
 		link.setType(MediaType.LIBROS_API_LINK_COLLECTION); //devolver coleccion de enlaces
 
 		return link;
-	}
+	}*/
 
-	public static final Link buildURILibros(UriInfo uriInfo, String rel) {
-		return buildURILibros(uriInfo, null, null, null, rel);
-	}
+	/*public static final Link buildURIStings(UriInfo uriInfo, String rel) {
+		return buildURIStings(uriInfo, null, null, null, rel);
+	}*/
 
-	public static final Link buildURILibros(UriInfo uriInfo, String offset, String length, String username, String rel) {
+	/*public static final Link buildURIStings(UriInfo uriInfo, String offset, String length, String username, String rel) {
 		URI uriStings;
 		if (offset == null && length == null)
 			uriStings = uriInfo.getBaseUriBuilder().path(LibroResource.class).build();	//devuelve http:blabla/stings
@@ -45,10 +47,9 @@ public class LibrosAPILinkBuilder {
 		self.setType(MediaType.LIBROS_API_LIBRO_COLLECTION);
 
 		return self;
-	}
+	} */
 
-	public static final Link buildTemplatedURIStings(UriInfo uriInfo, String rel) {
-
+	/*public static final Link buildTemplatedURIStings(UriInfo uriInfo, String rel) {
 		return buildTemplatedURIStings(uriInfo, rel, false);
 	}
 
@@ -70,26 +71,26 @@ public class LibrosAPILinkBuilder {
 		link.setType(MediaType.LIBROS_API_LIBRO_COLLECTION);
 
 		return link;
-	}
+	}*/
 
-	public final static Link buildURILibro(UriInfo uriInfo, Libro libro) {
-		URI stingURI = uriInfo.getBaseUriBuilder().path(LibroResource.class).build();
+	public final static Link buildURIResena(UriInfo uriInfo, Resena resena) {
+		URI resenaURI = uriInfo.getBaseUriBuilder().path(ResenaResource.class).build();
 		Link link = new Link();
-		link.setUri(stingURI.toString());
+		link.setUri(resenaURI.toString());
 		link.setRel("self");
-		link.setTitle("Libro " + libro.getLibroid());
-		link.setType(MediaType.LIBROS_API_LIBRO);
+		link.setTitle("Reseña " + resena.getResenaid());
+		link.setType(MediaType.LIBROS_API_RESENA);
 
 		return link;
 	}
 
-	public final static Link buildURILibroId(UriInfo uriInfo, int libroid, String rel) {
-		URI stingURI = uriInfo.getBaseUriBuilder().path(LibroResource.class).path(LibroResource.class, "getLibro").build(libroid);
+	public final static Link buildURIResenaId(UriInfo uriInfo, int resenaid, String rel) {
+		URI resenaURI = uriInfo.getBaseUriBuilder().path(ResenaResource.class).path(ResenaResource.class, "createResena").build(resenaid);
 		Link link = new Link();
-		link.setUri(stingURI.toString());
+		link.setUri(resenaURI.toString());
 		link.setRel(rel);
-		link.setTitle("Libro " + libroid);
-		link.setType(MediaType.LIBROS_API_LIBRO);
+		link.setTitle("Reseña " + resenaid);
+		link.setType(MediaType.LIBROS_API_RESENA);
 
 		return link;
 	}

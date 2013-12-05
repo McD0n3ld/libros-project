@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -159,13 +160,7 @@ public class LibroResource {
 	@Consumes(MediaType.LIBROS_API_LIBRO)
 	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Libro updateLibro(@PathParam("libroid") String libroid, Libro libro) {
-
-		/*if (security.isUserInRole("registered")) {
-			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
-				throw new ForbiddenException("You are not allowed...");
-			}
-		} */
-		
+	
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -305,7 +300,7 @@ public class LibroResource {
 				libro.setFecha_impresion(rs.getDate("fecha_impresion"));
 				libro.setEditorial(rs.getString("editorial"));
 				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
-				libro.addLink(LibrosAPILinkBuilder.buildURISting(uriInfo, libro));
+				libro.addLink(LibrosAPILinkBuilder.buildURILibro(uriInfo, libro));
 				libros.add(libro);
 			}
 			rs.close();
