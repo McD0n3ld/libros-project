@@ -1,14 +1,14 @@
 package eetac.upc.edu.dsa.raul.libros.api.model;
 
-public class BeeterError {
+public class LibrosError {
 	private int status;
 	private String message;
  
-	public BeeterError() {
+	public LibrosError() {
 		super();
 	}
  
-	public BeeterError(int status, String message) {
+	public LibrosError(int status, String message) {
 		super();
 		this.status = status;
 		this.message = message;

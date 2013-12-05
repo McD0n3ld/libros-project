@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import eetac.upc.edu.dsa.raul.libros.api.links.Link;
 
-public class BeeterRootAPI {
+public class LibrosRootAPI {
 
 	private ArrayList<Link> links;
 
-	public BeeterRootAPI() {
+	public LibrosRootAPI() {
 		super();
 		links = new ArrayList<Link>();
 	}
