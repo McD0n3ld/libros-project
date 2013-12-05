@@ -27,9 +27,10 @@ import javax.ws.rs.core.UriInfo;
 import edu.upc.eetac.dsa.raul.libros.api.links.LibrosAPILinkBuilder;
 import edu.upc.eetac.dsa.raul.libros.api.model.Libro;
 import edu.upc.eetac.dsa.raul.libros.api.model.LibroCollection;
+import edu.upc.eetac.dsa.raul.libros.api.model.Resena;
 
-@Path("/libros")
-public class LibroResource {
+@Path("/resena")
+public class ResenaResource {
 
 	@Context
 	private UriInfo uriInfo;
@@ -38,81 +39,11 @@ public class LibroResource {
 	private SecurityContext security;
 
 	private DataSource ds = DataSourceSPA.getInstance().getDataSource();
-	LibroCollection libros = new LibroCollection();
-
-	
-	@GET
-	@Path("/{libroid}")
-	@Produces(MediaType.LIBROS_API_LIBRO)
-	public Response getLibro(@PathParam("libroid") String libroid, @Context Request req) {
-		// Create CacheControl
-		CacheControl cc = new CacheControl();
-		
-		Libro libro = new Libro();
-		
-		Connection con = null;
-		Statement stmt = null;
-		try {
-			con = ds.getConnection();
-		} catch (SQLException e) {
-			throw new ServiceUnavailableException(e.getMessage());
-		}
-		
-		try {
-			stmt = con.createStatement();
-			String query = "SELECT * FROM libros WHERE libroid=" + libroid + ";";
-			ResultSet rs = stmt.executeQuery(query);
-			if (rs.next()) {
-				libro.setLibroid(rs.getInt("libroid"));
-				libro.setTitulo(rs.getString("titulo"));
-				libro.setAutor(rs.getString("autor"));
-				libro.setLengua(rs.getString("lengua"));
-				libro.setEdicion(rs.getString("edicion"));
-				libro.setFecha_edicion(rs.getDate("fecha_edicion"));
-				libro.setFecha_impresion(rs.getDate("fecha_impresion"));
-				libro.setEditorial(rs.getString("editorial"));
-				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
-				
-				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid() - 1, "prev"));
-				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
-				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid() + 1, "next"));
-			} else
-				throw new LibroNotFoundException();
-		} catch (SQLException e) {
-			throw new InternalServerException(e.getMessage());
-		} finally {
-			try {
-				con.close();
-				stmt.close();
-			} catch (Exception e) {
-			}
-		}
-
-		// Calculate the ETag on last modified date of user resource
-		EntityTag eTag = new EntityTag(Integer.toString(libro.getLastUpdate().hashCode()));
-
-		// Verify if it matched with etag available in http request
-		Response.ResponseBuilder rb = req.evaluatePreconditions(eTag);
-
-		// If ETag matches the rb will be non-null;
-		// Use the rb to return the response without any further processing
-		if (rb != null) {
-			return rb.cacheControl(cc).tag(eTag).build();
-		}
-
-		// If rb is null then either it is first time request; or resource is
-		// modified
-		// Get the updated representation and return with Etag attached to it
-		rb = Response.ok(libro).cacheControl(cc).tag(eTag);
-
-		return rb.build();
-	}
 	
 	@POST
-	@Consumes(MediaType.LIBROS_API_LIBRO)
-	@Produces(MediaType.LIBROS_API_LIBRO)
-	public Libro createLibro(Libro libro) {
-		
+	@Consumes(MediaType.LIBROS_API_RESENA)
+	@Produces(MediaType.LIBROS_API_RESENA)
+	public Resena createResena(Resena resena) {
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -120,25 +51,26 @@ public class LibroResource {
 		} catch (SQLException e) {
 			throw new ServiceUnavailableException(e.getMessage());
 		}
-
 		try {
 			stmt = con.createStatement();
-			SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd");
-			String edicion = dt1.format(libro.getFecha_edicion());
-			String impresion = dt1.format(libro.getFecha_impresion());
-			String update = "insert into libros (titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values ('"+libro.getTitulo()+"', '"+libro.getAutor()+"', '"+libro.getLengua()+"','"+libro.getEdicion()+"','"+edicion+"','"+impresion+"','"+libro.getEditorial()+"');";
+			String consulta = "select * from resenas where username='"+resena.getUsername()+"' and libroid='"+resena.getLibroid()+"';";
+			ResultSet rs = stmt.executeQuery(consulta);
+			if (rs.next())
+				throw new ResenaAlreadyFoundException();
+			String update = "insert into resenas (libroid, username, content) values ('"+resena.getLibroid()+"', '"+resena.getUsername()+"', '"+resena.getContent()+"');";
 			stmt.executeUpdate(update, Statement.RETURN_GENERATED_KEYS);
-			ResultSet rs = stmt.getGeneratedKeys();
+			rs = stmt.getGeneratedKeys();
 			if (rs.next()) {
-				int libroid = rs.getInt(1);
+				int resenaid = rs.getInt(1);
 				rs.close();
 
-				rs = stmt.executeQuery("SELECT libros.lastUpdate FROM libros WHERE libroid='" + libroid + "';");
+				rs = stmt.executeQuery("SELECT users.name, resenas.lastUpdate FROM users, resenas WHERE users.username='"+resena.getUsername()+"' and resenas.resenaid='" + resenaid + "';");
 				rs.next();
-				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
-				libro.setLibroid(libroid);
-				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
-				libros.add(libro);
+				resena.setLastUpdate(rs.getTimestamp("lastUpdate"));
+				resena.setResenaid(resenaid);
+				resena.setName(rs.getString("name"));
+				//libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
+				//libros.add(libro);
 			} else
 				throw new LibroNotFoundException();
 		} catch (SQLException e) {
@@ -150,17 +82,16 @@ public class LibroResource {
 			} catch (Exception e) {
 			}
 		}
-		return libro;
+		return resena;
 	}
 	
-	
 	@PUT
-	@Path("/{libroid}")
-	@Consumes(MediaType.LIBROS_API_LIBRO)
-	@Produces(MediaType.LIBROS_API_LIBRO)
-	public Libro updateLibro(@PathParam("libroid") String libroid, Libro libro) {
+	@Path("/{resenaid}")
+	@Consumes(MediaType.LIBROS_API_RESENA)
+	@Produces(MediaType.LIBROS_API_RESENA)
+	public Resena updateResena(@PathParam("resenaid") String resenaid, Resena resena) {
 
-		/*if (security.isUserInRole("registered")) {
+		/* if (security.isUserInRole("registered")) {
 			if (!security.getUserPrincipal().getName().equals(sting.getUsername())) {
 				throw new ForbiddenException("You are not allowed...");
 			}
@@ -176,27 +107,20 @@ public class LibroResource {
 		try {
 			stmt = con.createStatement();
 			String update;
-			SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd");
-			String edicion = dt1.format(libro.getFecha_edicion());
-			String impresion = dt1.format(libro.getFecha_impresion());
-			update = "UPDATE libros SET libros.titulo='" + libro.getTitulo() + "', libros.autor='" + libro.getAutor() + "', libros.lengua='" + libro.getLengua() + "', libros.edicion='" + libro.getEdicion() + "', libros.fecha_edicion='" + edicion + "', libros.fecha_impresion='" + impresion + "', libros.editorial='" + libro.getEditorial() + "' WHERE libroid='" + libroid + "';";
+			update = "UPDATE resenas SET resenas.content='" + resena.getContent() + "'WHERE resenaid='"+resenaid+"';";
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
-				throw new LibroNotFoundException();
+				throw new ResenaNotFoundException();
 	
-			String query = "SELECT * FROM libros WHERE libroid=" + libroid + ";";
+			String query = "SELECT * FROM resenas WHERE resenaid=" + resenaid + ";";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-				libro.setLibroid(rs.getInt("libroid"));
-				libro.setTitulo(rs.getString("titulo"));
-				libro.setAutor(rs.getString("autor"));
-				libro.setLengua(rs.getString("lengua"));
-				libro.setEdicion(rs.getString("edicion"));
-				libro.setFecha_edicion(rs.getDate("fecha_edicion"));
-				libro.setFecha_impresion(rs.getDate("fecha_impresion"));
-				libro.setEditorial(rs.getString("editorial"));
-				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
-				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
+				resena.setResenaid(rs.getInt("resenaid"));
+				resena.setLibroid(rs.getInt("libroid"));
+				resena.setUsername(rs.getString("username"));
+				resena.setLastUpdate(rs.getTimestamp("lastUpdate"));
+				resena.setContent(rs.getString("content"));
+				//libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
 			}
 		} catch (SQLException e) {
 			throw new InternalServerException(e.getMessage());
@@ -207,13 +131,12 @@ public class LibroResource {
 			} catch (Exception e) {
 			}
 		}
-		return libro;
+		return resena;
 	}
 	
-	
 	@DELETE
-	@Path("/{libroid}")
-	public void deleteLibro(@PathParam("libroid") String libroid) {
+	@Path("/{resenaid}")
+	public void deleteResena(@PathParam("resenaid") String resenaid) {
 		// TODO Delete record in database stings identified by stingid.
 		Connection con = null;
 		Statement stmt = null;
@@ -224,7 +147,7 @@ public class LibroResource {
 		}
 		try {
 			stmt = con.createStatement();
-			String query = "DELETE FROM libros WHERE libroid=" + libroid + ";";
+			String query = "DELETE FROM resenas WHERE resenaid=" + resenaid + ";";
 			int rows = stmt.executeUpdate(query);
 			if (rows == 0)
 				throw new LibroNotFoundException();
@@ -238,6 +161,12 @@ public class LibroResource {
 			}
 		}
 	}
+	
+	/*
+	
+	
+	
+	
 	
 	@GET
 	@Path("/search")
@@ -260,7 +189,7 @@ public class LibroResource {
 				throw new NumberFormatException();
 		} catch (NumberFormatException e) {
 			throw new BadRequestException("length must be an integer greater or equal than 0.");
-		}*/
+		}
 		
 		if (titulo == null && autor == null)
 			throw new BadRequestException("Titulo and Autor are mandatoy parameters.");

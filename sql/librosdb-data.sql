@@ -1,11 +1,10 @@
-source librosdb-schema.sql;
 insert into users values('alicia', 'Alicia', 'alicia@acme.com');
 insert into users values('blas', 'Blas', 'blas@acme.com');
 insert into users values('admin', 'admin', 'admin@acme.com');
 insert into users values('test', 'test', 'admin@acme.com');
 insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (1,'El clan de Oso cabernario', 'Periquito delso palotes', 'castellano','14','2001-02-01','2002-06-03','Aliansa');
 insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (2,'El holocausto bajo la Lupa', 'Jurgen Graff', 'castellano','14','2001-04-01','2002-07-03','Graff');
-insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (3,'Auschwitz los hechos y las leyendas', 'Robert Faurison','14', 'castellano','2001-02-01','2002-06-03','Aliansa');
+insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (3,'Auschwitz los hechos y las leyendas', 'Robert Faurison','castellano', '14','2001-02-01','2002-06-03','Aliansa');
 insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (4,'La fabula del Holocausto', 'Arthur Butz', 'castellano','14','2001-02-01','2002-06-03','Aliansa');
 insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (5,'Auschwitz los hechos y las leyendas', 'Robert Faurison', 'castellano','14','2001-02-01','2002-06-03','Aliansa');
 insert into libros (libroid,titulo, autor, lengua, edicion, fecha_edicion, fecha_impresion, editorial) values (6,'El drama de los Judios Europeos', 'Paul Rassiner', 'castellano','14','2001-02-01','2002-06-03','Aliansa');

@@ -5,17 +5,16 @@ import javax.ws.rs.core.Response;
 
 import edu.upc.eetac.dsa.raul.libros.api.model.LibrosError;
 
-public class LibroNotFoundException extends WebApplicationException {
+public class ResenaAlreadyFoundException extends WebApplicationException {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4110163799971920585L;
-	private final static String MESSAGE = "Libro not found";
-	public LibroNotFoundException() {
+	private final static String MESSAGE = "Resena already found";
+	public ResenaAlreadyFoundException() {
 		super(Response
 				.status(Response.Status.NOT_FOUND)
-				.entity(new LibrosError(Response.Status.NOT_FOUND
-						.getStatusCode(), MESSAGE))
+				.entity(new LibrosError(Response.Status.NOT_FOUND.getStatusCode(), MESSAGE))
 				.type(MediaType.LIBROS_API_ERROR).build());
 	}
 }

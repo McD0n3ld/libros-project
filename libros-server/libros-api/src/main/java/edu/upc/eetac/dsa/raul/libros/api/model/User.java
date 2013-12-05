@@ -1,4 +1,4 @@
-package eetac.upc.edu.dsa.raul.libros.api.model;
+package edu.upc.eetac.dsa.raul.libros.api.model;
 
 public class User {
 

@@ -21,8 +21,8 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import eetac.upc.edu.dsa.raul.libros.api.model.User;
-import eetac.upc.edu.dsa.raul.libros.api.model.UserCollection;
+import edu.upc.eetac.dsa.raul.libros.api.model.User;
+import edu.upc.eetac.dsa.raul.libros.api.model.UserCollection;
 
 @Path("/users")
 public class UserResource {

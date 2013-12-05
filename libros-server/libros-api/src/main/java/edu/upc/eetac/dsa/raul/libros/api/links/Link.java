@@ -1,4 +1,4 @@
-package eetac.upc.edu.dsa.raul.libros.api.links;
+package edu.upc.eetac.dsa.raul.libros.api.links;
 
 public class Link {
 	private String uri;		//url absoluto (minimo de la clase)

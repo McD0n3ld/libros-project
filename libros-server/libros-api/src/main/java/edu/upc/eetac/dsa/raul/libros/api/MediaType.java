@@ -11,4 +11,6 @@ public interface MediaType {
 	
 	public final static String LIBROS_API_LINK = "application/vnd.dsa.libros.link+json";
 	public final static String LIBROS_API_LINK_COLLECTION = "application/vnd.dsa.libros.link.collection+json";
+	
+	public final static String LIBROS_API_RESENA = "application/vnd.dsa.libros.resena+json";
 }

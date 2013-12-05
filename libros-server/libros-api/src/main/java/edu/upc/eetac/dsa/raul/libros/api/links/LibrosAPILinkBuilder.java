@@ -1,4 +1,4 @@
-package eetac.upc.edu.dsa.raul.libros.api.links;
+package edu.upc.eetac.dsa.raul.libros.api.links;
 
 import java.net.URI;
 
@@ -7,7 +7,7 @@ import javax.ws.rs.core.UriInfo;
 import edu.upc.eetac.dsa.raul.libros.api.LibrosRootAPIResource;
 import edu.upc.eetac.dsa.raul.libros.api.MediaType;
 import edu.upc.eetac.dsa.raul.libros.api.LibroResource;
-import eetac.upc.edu.dsa.raul.libros.api.model.Libro;
+import edu.upc.eetac.dsa.raul.libros.api.model.Libro;
 
 
 public class LibrosAPILinkBuilder {

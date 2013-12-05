@@ -1,8 +1,8 @@
-package eetac.upc.edu.dsa.raul.libros.api.model;
+package edu.upc.eetac.dsa.raul.libros.api.model;
 
 import java.util.ArrayList;
 
-import eetac.upc.edu.dsa.raul.libros.api.links.Link;
+import edu.upc.eetac.dsa.raul.libros.api.links.Link;
 
 public class LibrosRootAPI {
 

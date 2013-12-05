@@ -27,6 +27,6 @@ create table resenas (
 	username	 		varchar(20) not null,
 	lastUpdate			timestamp, 
 	content				varchar(500) not null,
-	foreign key(username) references users(username),
-	foreign key(libroid) references libros(libroid)
+	foreign key(username) references users(username) ON DELETE CASCADE,
+	foreign key(libroid) references libros(libroid) ON DELETE CASCADE
 );
