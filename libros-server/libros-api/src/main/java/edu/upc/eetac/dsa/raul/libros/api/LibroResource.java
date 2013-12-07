@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
+import edu.upc.eetac.dsa.raul.libros.api.BadRequestException;
 import edu.upc.eetac.dsa.raul.libros.api.links.LibrosAPILinkBuilder;
 import edu.upc.eetac.dsa.raul.libros.api.model.Libro;
 import edu.upc.eetac.dsa.raul.libros.api.model.LibroCollection;
@@ -113,6 +114,16 @@ public class LibroResource {
 	@Consumes(MediaType.LIBROS_API_LIBRO)
 	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Libro createLibro(Libro libro) {
+		if (libro.getTitulo().length() > 100)
+			throw new BadRequestException("Titulo length must be less or equal than 100 characters");
+		if (libro.getAutor().length() > 100)
+			throw new BadRequestException("Autor length must be less or equal than 100 characters");
+		if (libro.getLengua().length() > 50)
+			throw new BadRequestException("Lengua length must be less or equal than 50 characters");
+		if (libro.getEdicion().length() > 100)
+			throw new BadRequestException("Edicion length must be less or equal than 100 characters");
+		if (libro.getEditorial().length() > 100)
+			throw new BadRequestException("Editoral length must be less or equal than 100 characters");
 		
 		Connection con = null;
 		Statement stmt = null;
@@ -161,6 +172,17 @@ public class LibroResource {
 	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Libro updateLibro(@PathParam("libroid") String libroid, Libro libro) {
 	
+		if (libro.getTitulo().length() > 100)
+			throw new BadRequestException("Titulo length must be less or equal than 100 characters");
+		if (libro.getAutor().length() > 100)
+			throw new BadRequestException("Autor length must be less or equal than 100 characters");
+		if (libro.getLengua().length() > 50)
+			throw new BadRequestException("Lengua length must be less or equal than 50 characters");
+		if (libro.getEdicion().length() > 100)
+			throw new BadRequestException("Edicion length must be less or equal than 100 characters");
+		if (libro.getEditorial().length() > 100)
+			throw new BadRequestException("Editoral length must be less or equal than 100 characters");
+		
 		Connection con = null;
 		Statement stmt = null;
 		try {

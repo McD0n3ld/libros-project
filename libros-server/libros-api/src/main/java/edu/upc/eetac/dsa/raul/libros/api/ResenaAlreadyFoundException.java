@@ -13,8 +13,8 @@ public class ResenaAlreadyFoundException extends WebApplicationException {
 	private final static String MESSAGE = "Resena already found";
 	public ResenaAlreadyFoundException() {
 		super(Response
-				.status(Response.Status.NOT_FOUND)
-				.entity(new LibrosError(Response.Status.NOT_FOUND.getStatusCode(), MESSAGE))
+				.status(Response.Status.FOUND)
+				.entity(new LibrosError(Response.Status.FOUND.getStatusCode(), MESSAGE))
 				.type(MediaType.LIBROS_API_ERROR).build());
 	}
 }

@@ -47,6 +47,11 @@ public class ResenaResource {
 	@Produces(MediaType.LIBROS_API_RESENA)
 	public Resena createResena(Resena resena) {
 
+		if (resena.getUsername().length() > 20)
+			throw new BadRequestException("Username length must be less or equal than 20 characters");
+		if (resena.getContent().length() > 500)
+			throw new BadRequestException("Content length must be less or equal than 500 characters");
+		
 		if (security.isUserInRole("registered")) {
 			if (!security.getUserPrincipal().getName().equals(resena.getUsername())) {
 				throw new ForbiddenException("You are not allowed...");
