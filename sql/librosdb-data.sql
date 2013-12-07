@@ -1,3 +1,4 @@
+source librosdb-schema.sql;
 insert into users values('alicia', 'Alicia', 'alicia@acme.com');
 insert into users values('blas', 'Blas', 'blas@acme.com');
 insert into users values('admin', 'admin', 'admin@acme.com');

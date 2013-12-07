@@ -260,24 +260,7 @@ public class LibroResource {
 	@Path("/search")
 	@Produces(MediaType.LIBROS_API_LIBRO_COLLECTION)
 	public LibroCollection getSearch(@QueryParam("titulo") String titulo, @QueryParam("autor") String autor, @Context Request req) {
-		/*
-		if ((offset == null) || (length == null))
-			throw new BadRequestException("offset and length are mandatory parameters");
-		int ioffset, ilength;
-		try {
-			ioffset = Integer.parseInt(offset);
-			if (ioffset < 0)
-				throw new NumberFormatException();
-		} catch (NumberFormatException e) {
-			throw new BadRequestException("offset must be an integer greater or equal than 0.");
-		}
-		try {
-			ilength = Integer.parseInt(length);
-			if (ilength < 1)
-				throw new NumberFormatException();
-		} catch (NumberFormatException e) {
-			throw new BadRequestException("length must be an integer greater or equal than 0.");
-		}*/
+		
 		
 		if (titulo == null && autor == null)
 			throw new BadRequestException("Titulo and Autor are mandatoy parameters.");
