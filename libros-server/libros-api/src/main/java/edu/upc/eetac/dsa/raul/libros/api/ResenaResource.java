@@ -32,6 +32,7 @@ import edu.upc.eetac.dsa.raul.libros.api.model.LibroCollection;
 import edu.upc.eetac.dsa.raul.libros.api.model.Resena;
 
 @Path("/resena")
+//@Path("/libros/{libroid}/resena")
 public class ResenaResource {
 
 	@Context
@@ -85,8 +86,8 @@ public class ResenaResource {
 				resena.setLastUpdate(rs.getTimestamp("lastUpdate"));
 				resena.setResenaid(resenaid);
 				resena.setName(rs.getString("name"));
-				// resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo,
-				// resena.getResenaid(), "self"));
+				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo,
+				resena.getResenaid(), "self"));
 			} else
 				throw new LibroNotFoundException();
 		} catch (SQLException e) {
@@ -190,6 +191,12 @@ public class ResenaResource {
 			} catch (Exception e) {
 			}
 		}
+	}
+	
+	@GET
+	@Path("/{resenaid}")
+	public Resena getResena(@PathParam("resenaid") String resenaid){
+		throw new ResenaNotFoundException();
 	}
 
 }

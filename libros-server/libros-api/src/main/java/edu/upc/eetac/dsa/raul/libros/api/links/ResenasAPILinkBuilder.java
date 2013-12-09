@@ -85,7 +85,8 @@ public class ResenasAPILinkBuilder {
 	}
 
 	public final static Link buildURIResenaId(UriInfo uriInfo, int resenaid, String rel) {
-		URI resenaURI = uriInfo.getBaseUriBuilder().path(ResenaResource.class).path(ResenaResource.class, "createResena").build(resenaid);
+		//System.out.println(uriInfo.getBaseUriBuilder());
+		URI resenaURI = uriInfo.getBaseUriBuilder().path(ResenaResource.class).path(ResenaResource.class, "getResena").build(resenaid);
 		Link link = new Link();
 		link.setUri(resenaURI.toString());
 		link.setRel(rel);

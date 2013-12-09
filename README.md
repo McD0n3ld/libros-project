@@ -28,7 +28,7 @@ exit;
 
 5. cd ../libros-server/libros-api
 
-maven install libros-api
-ejecutar libros-api
+maven build package libros-api
+Cargar en tomcat el .war de libros-api
 
 6. Hacer las comprobaciones oportunas con POSTMAN.
