@@ -48,16 +48,15 @@ public class ResenaResource {
 	@Produces(MediaType.LIBROS_API_RESENA)
 	public Resena createResena(Resena resena) {
 
-		if (resena.getUsername().length() > 20)
-			throw new BadRequestException("Username length must be less or equal than 20 characters");
 		if (resena.getContent().length() > 500)
 			throw new BadRequestException("Content length must be less or equal than 500 characters");
 		
-		if (security.isUserInRole("registered")) {
-			if (!security.getUserPrincipal().getName().equals(resena.getUsername())) {
-				throw new ForbiddenException("You are not allowed...");
-			}
-		}
+//		if (security.isUserInRole("registered")) {
+//			if (!security.getUserPrincipal().getName().equals(resena.getUsername())) {
+//				throw new ForbiddenException("You are not allowed...");
+//			}
+//		}
+		resena.setUsername(security.getUserPrincipal().getName());
 
 		Connection con = null;
 		Statement stmt = null;
@@ -195,8 +194,62 @@ public class ResenaResource {
 	
 	@GET
 	@Path("/{resenaid}")
-	public Resena getResena(@PathParam("resenaid") String resenaid){
-		throw new ResenaNotFoundException();
+	@Produces(MediaType.LIBROS_API_RESENA)
+	public Response getResena(@PathParam("resenaid") String resenaid, @Context Request req){
+		// Create CacheControl
+		CacheControl cc = new CacheControl();
+		
+		Resena resena = new Resena();
+		
+		Connection con = null;
+		Statement stmt = null;
+		try {
+			con = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServiceUnavailableException(e.getMessage());
+		}
+		
+		try {
+			stmt = con.createStatement();
+			String query = "SELECT * FROM resenas WHERE resenaid=" + resenaid + ";";
+			ResultSet rs = stmt.executeQuery(query);
+			if (rs.next()) {
+				resena.setContent(rs.getString("content"));
+				resena.setLastUpdate(rs.getTimestamp("lastUpdate"));
+				resena.setLibroid(rs.getInt("libroid"));
+				resena.setResenaid(rs.getInt("resenaid"));
+				resena.setUsername(rs.getString("username"));		
+				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo, Integer.parseInt(resenaid), "self"));
+			} else
+				throw new ResenaNotFoundException();
+		} catch (SQLException e) {
+			throw new InternalServerException(e.getMessage());
+		} finally {
+			try {
+				con.close();
+				stmt.close();
+			} catch (Exception e) {
+			}
+		}
+
+		// Calculate the ETag on last modified date of user resource
+		EntityTag eTag = new EntityTag(Integer.toString(resena.getLastUpdate().hashCode()));
+
+		// Verify if it matched with etag available in http request
+		Response.ResponseBuilder rb = req.evaluatePreconditions(eTag);
+
+		// If ETag matches the rb will be non-null;
+		// Use the rb to return the response without any further processing
+		if (rb != null) {
+			return rb.cacheControl(cc).tag(eTag).build();
+		}
+
+		// If rb is null then either it is first time request; or resource is
+		// modified
+		// Get the updated representation and return with Etag attached to it
+		rb = Response.ok(resena).cacheControl(cc).tag(eTag);
+
+		return rb.build();
 	}
 
 }

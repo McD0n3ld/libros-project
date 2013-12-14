@@ -305,7 +305,7 @@ public class LibroResource {
 				libro.setFecha_impresion(rs.getDate("fecha_impresion"));
 				libro.setEditorial(rs.getString("editorial"));
 				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
-				libro.addLink(LibrosAPILinkBuilder.buildURILibro(uriInfo, libro));
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(),"self"));
 				libros.add(libro);
 			}
 			rs.close();
