@@ -185,7 +185,6 @@ public class ResenaResource {
 	@Path("/{resenaid}")
 	@Produces(MediaType.LIBROS_API_RESENA)
 	public Response getResena(@PathParam("libroid") String libroid, @PathParam("resenaid") String resenaid, @Context Request req){
-	//public Response getResena(@PathParam("libroid") String libroid, @Context Request req){
 		
 		// Create CacheControl
 		CacheControl cc = new CacheControl();
