@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.SimpleDateFormat;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Consumes;
@@ -16,7 +15,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -25,14 +23,11 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
-import edu.upc.eetac.dsa.raul.libros.api.links.LibrosAPILinkBuilder;
 import edu.upc.eetac.dsa.raul.libros.api.links.ResenasAPILinkBuilder;
-import edu.upc.eetac.dsa.raul.libros.api.model.Libro;
-import edu.upc.eetac.dsa.raul.libros.api.model.LibroCollection;
 import edu.upc.eetac.dsa.raul.libros.api.model.Resena;
 
-@Path("/resena")
-//@Path("/libros/{libroid}/resena")
+//@Path("/resena")
+@Path("/libros/{libroid}/resena")
 public class ResenaResource {
 
 	@Context
@@ -46,7 +41,7 @@ public class ResenaResource {
 	@POST
 	@Consumes(MediaType.LIBROS_API_RESENA)
 	@Produces(MediaType.LIBROS_API_RESENA)
-	public Resena createResena(Resena resena) {
+	public Resena createResena(@PathParam("libroid") String libroid, Resena resena) {
 
 		if (resena.getContent().length() > 500)
 			throw new BadRequestException("Content length must be less or equal than 500 characters");
@@ -57,7 +52,7 @@ public class ResenaResource {
 //			}
 //		}
 		resena.setUsername(security.getUserPrincipal().getName());
-
+		resena.setLibroid(Integer.parseInt(libroid));
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -85,8 +80,7 @@ public class ResenaResource {
 				resena.setLastUpdate(rs.getTimestamp("lastUpdate"));
 				resena.setResenaid(resenaid);
 				resena.setName(rs.getString("name"));
-				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo,
-				resena.getResenaid(), "self"));
+				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo,resena.getLibroid(), resena.getResenaid(), "self"));
 			} else
 				throw new LibroNotFoundException();
 		} catch (SQLException e) {
@@ -195,7 +189,9 @@ public class ResenaResource {
 	@GET
 	@Path("/{resenaid}")
 	@Produces(MediaType.LIBROS_API_RESENA)
-	public Response getResena(@PathParam("resenaid") String resenaid, @Context Request req){
+	public Response getResena(@PathParam("libroid") String libroid, @PathParam("resenaid") String resenaid, @Context Request req){
+	//public Response getResena(@PathParam("libroid") String libroid, @Context Request req){
+		
 		// Create CacheControl
 		CacheControl cc = new CacheControl();
 		
@@ -211,7 +207,7 @@ public class ResenaResource {
 		
 		try {
 			stmt = con.createStatement();
-			String query = "SELECT * FROM resenas WHERE resenaid=" + resenaid + ";";
+			String query = "SELECT * FROM resenas WHERE resenaid=" + resenaid + " and libroid="+libroid+";";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
 				resena.setContent(rs.getString("content"));
@@ -219,7 +215,7 @@ public class ResenaResource {
 				resena.setLibroid(rs.getInt("libroid"));
 				resena.setResenaid(rs.getInt("resenaid"));
 				resena.setUsername(rs.getString("username"));		
-				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo, Integer.parseInt(resenaid), "self"));
+				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo, Integer.parseInt(libroid), Integer.parseInt(resenaid), "self"));
 			} else
 				throw new ResenaNotFoundException();
 		} catch (SQLException e) {
