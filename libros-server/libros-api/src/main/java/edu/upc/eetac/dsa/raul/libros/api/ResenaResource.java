@@ -27,7 +27,7 @@ import edu.upc.eetac.dsa.raul.libros.api.links.ResenasAPILinkBuilder;
 import edu.upc.eetac.dsa.raul.libros.api.model.Resena;
 
 //@Path("/resena")
-@Path("/libros/{libroid}/resena")
+@Path("/libros/{libroid}/resenas")
 public class ResenaResource {
 
 	@Context
@@ -69,7 +69,6 @@ public class ResenaResource {
 			String update = "insert into resenas (libroid, username, content) values ('" + resena.getLibroid() + "', '" + resena.getUsername() + "', '"
 					+ resena.getContent() + "');";
 			stmt.executeUpdate(update, Statement.RETURN_GENERATED_KEYS);
-			System.out.println("HOLA");
 			rs = stmt.getGeneratedKeys();
 			if (rs.next()) {
 				int resenaid = rs.getInt(1);
@@ -101,12 +100,8 @@ public class ResenaResource {
 	@Produces(MediaType.LIBROS_API_RESENA)
 	public Resena updateResena(@PathParam("resenaid") String resenaid, Resena resena) {
 
-		if (security.isUserInRole("registered")) {
-			if (!security.getUserPrincipal().getName().equals(resena.getUsername())) {
-				throw new ForbiddenException("You are not allowed...");
-			}
-		}
-
+		resena.setUsername(security.getUserPrincipal().getName());
+		
 		Connection con = null;
 		Statement stmt = null;
 		try {
@@ -117,7 +112,7 @@ public class ResenaResource {
 		try {
 			stmt = con.createStatement();
 			String update;
-			update = "UPDATE resenas SET resenas.content='" + resena.getContent() + "'WHERE resenaid='" + resenaid + "';";
+			update = "UPDATE resenas SET resenas.content='" + resena.getContent() + "'WHERE resenaid='" + resenaid + "' AND username='"+resena.getUsername()+"';";
 			int rows = stmt.executeUpdate(update);
 			if (rows == 0)
 				throw new ResenaNotFoundException();
@@ -130,7 +125,7 @@ public class ResenaResource {
 				resena.setUsername(rs.getString("username"));
 				resena.setLastUpdate(rs.getTimestamp("lastUpdate"));
 				resena.setContent(rs.getString("content"));
-				//resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo, resena.getResenaid(), "self"));
+				resena.addLink(ResenasAPILinkBuilder.buildURIResenaId(uriInfo, resena.getLibroid(), resena.getResenaid(), "self"));
 			}
 		} catch (SQLException e) {
 			throw new InternalServerException(e.getMessage());

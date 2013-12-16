@@ -114,6 +114,9 @@ public class LibroResource {
 	@Consumes(MediaType.LIBROS_API_LIBRO)
 	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Libro createLibro(Libro libro) {
+		if (!security.isUserInRole("admin")) {
+			throw new ForbiddenException("You are not allowed...");
+		}
 		if (libro.getTitulo().length() > 100)
 			throw new BadRequestException("Titulo length must be less or equal than 100 characters");
 		if (libro.getAutor().length() > 100)
@@ -171,7 +174,9 @@ public class LibroResource {
 	@Consumes(MediaType.LIBROS_API_LIBRO)
 	@Produces(MediaType.LIBROS_API_LIBRO)
 	public Libro updateLibro(@PathParam("libroid") String libroid, Libro libro) {
-	
+		if (!security.isUserInRole("admin")) {
+			throw new ForbiddenException("You are not allowed...");
+		}
 		if (libro.getTitulo().length() > 100)
 			throw new BadRequestException("Titulo length must be less or equal than 100 characters");
 		if (libro.getAutor().length() > 100)
@@ -231,7 +236,9 @@ public class LibroResource {
 	@DELETE
 	@Path("/{libroid}")
 	public void deleteLibro(@PathParam("libroid") String libroid) {
-		// TODO Delete record in database stings identified by stingid.
+		if (!security.isUserInRole("admin")) {
+			throw new ForbiddenException("You are not allowed...");
+		}
 		Connection con = null;
 		Statement stmt = null;
 		try {
