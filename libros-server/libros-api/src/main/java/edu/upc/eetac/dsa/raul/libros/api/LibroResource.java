@@ -110,6 +110,53 @@ public class LibroResource {
 		return rb.build();
 	}
 	
+	@GET
+	@Produces(MediaType.LIBROS_API_LIBRO_COLLECTION)
+	public LibroCollection getLibros(@Context Request req) {
+		// Create CacheControl
+		CacheControl cc = new CacheControl();
+				
+		Connection con = null;
+		Statement stmt = null;
+		try {
+			con = ds.getConnection();
+		} catch (SQLException e) {
+			throw new ServiceUnavailableException(e.getMessage());
+		}
+		
+		try {
+			stmt = con.createStatement();
+			String query = "SELECT * FROM libros;";
+			ResultSet rs = stmt.executeQuery(query);
+			while (rs.next()) {
+				Libro libro = new Libro();
+				libro.setLibroid(rs.getInt("libroid"));
+				libro.setTitulo(rs.getString("titulo"));
+				libro.setAutor(rs.getString("autor"));
+				libro.setLengua(rs.getString("lengua"));
+				libro.setEdicion(rs.getString("edicion"));
+				libro.setFecha_edicion(rs.getDate("fecha_edicion"));
+				libro.setFecha_impresion(rs.getDate("fecha_impresion"));
+				libro.setEditorial(rs.getString("editorial"));
+				libro.setLastUpdate(rs.getTimestamp("lastUpdate"));
+				
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid() - 1, "prev"));
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid(), "self"));
+				libro.addLink(LibrosAPILinkBuilder.buildURILibroId(uriInfo, libro.getLibroid() + 1, "next"));
+				libros.add(libro);
+			}
+		} catch (SQLException e) {
+			throw new InternalServerException(e.getMessage());
+		} finally {
+			try {
+				con.close();
+				stmt.close();
+			} catch (Exception e) {
+			}
+		}
+		return libros;
+	}
+	
 	@POST
 	@Consumes(MediaType.LIBROS_API_LIBRO)
 	@Produces(MediaType.LIBROS_API_LIBRO)
